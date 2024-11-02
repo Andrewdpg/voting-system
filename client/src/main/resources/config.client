@@ -1,0 +1,10 @@
+# The client reads this property to create the reference to the
+# "RegistrationService" and "QueryService" objects in the server.
+RegistrationService.Proxy=RegistrationService:tcp -h localhost -p 9099
+QueryService.Proxy=QueryService:tcp -h localhost -p 9099
+
+# Endpoint for the callback adapter
+CallbackAdapter.Endpoints=tcp -p 0
+
+# Uncomment to use the WebSocket transports instead.
+#Hello.Proxy=hello:ws -p 10002:udp -p 10000:wss -p 10003

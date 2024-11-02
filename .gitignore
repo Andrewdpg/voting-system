@@ -1,4 +1,11 @@
+# Ignore project-specific cache and directories
 .gradle
+.vscode
+.settings
+.project
+
+# Ignore Gradle build output directory
+build
 **/build/
 !src/**/build/
 
@@ -14,8 +21,5 @@ gradle-app.setting
 # Cache of project
 .gradletasknamecache
 
-# Eclipse Gradle plugin generated files
-# Eclipse Core
-.project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
