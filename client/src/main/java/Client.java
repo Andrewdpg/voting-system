@@ -18,7 +18,7 @@ public class Client {
         try (Communicator communicator = com.zeroc.Ice.Util.initialize(args, "config.client", extraArgs)) {
             ObjectAdapter adapter = communicator.createObjectAdapter("CallbackAdapter");
 
-            CallbackHandler callbackHandler = new CallbackHandler(Client::setInfo);
+            CallbackHandler callbackHandler = new CallbackHandler(Client::setInfo, Client::setRunning);
             com.zeroc.Ice.ObjectPrx proxy = adapter.addWithUUID(callbackHandler);
             adapter.activate();
 
@@ -31,7 +31,12 @@ public class Client {
                 Thread.onSpinWait();
             }
 
-            serviceManager.queryPollingStation(info,1234);
+
+            for (int i = 0; i < 1000; i++) {
+                new Thread(() -> serviceManager.queryPollingStation(info, (int)(Math.random() * 100000))).start();
+            }
+
+            System.out.println("All queries sent");
 
             while (running) {
                 Thread.onSpinWait();

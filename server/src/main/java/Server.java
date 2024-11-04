@@ -5,6 +5,8 @@ import config.DatabaseConfig;
 import config.ServiceManagerImpl;
 import config.interfaces.ServiceManager;
 
+import java.util.Scanner;
+
 public class Server {
     public static void main(String[] args) {
         java.util.List<String> extraArgs = new java.util.ArrayList<>();
@@ -29,6 +31,18 @@ public class Server {
 
             // Activate the adapter
             adapter.activate();
+
+            // Leer valor de cierre en consola
+            new Thread(() -> {
+                System.out.println("Enter 'e' to export data to Excel");
+                while (true) {
+                    int ch = new Scanner(System.in).next().charAt(0);
+                    if (ch == 'e') {
+                        serviceManager.shutdownServices();
+                        break;
+                    }
+                }
+            }).start();
 
             communicator.waitForShutdown();
         }

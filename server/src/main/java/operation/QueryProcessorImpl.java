@@ -15,7 +15,9 @@ public class QueryProcessorImpl implements QueryProcessor {
 
         QueryResult result = new QueryResult();
         result.citizenId = citizenId;
+        long dbInit = System.currentTimeMillis();
         result.pollingStation = persistence.getPollingStation(citizenId);
+        result.dbTime = System.currentTimeMillis() - dbInit;
         result.isPrime = executor.isPrimeFactorCountPrime(citizenId)  ? 1 : 0;
         result.processTime = System.currentTimeMillis() - start;
 

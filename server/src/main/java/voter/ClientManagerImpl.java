@@ -36,6 +36,19 @@ public class ClientManagerImpl implements voter.interfaces.ClientManager {
         return clients.containsKey(info.clientId);
     }
 
+    @Override
+    public void sendError(ClientInfo info, String error) {
+        ClientPrx clientProxy = clients.get(info.clientId);
+        if (clientProxy != null) {
+            notificationService.notifyClient(clientProxy, new VotingSystem.Error(error));
+        }
+    }
+
+    @Override
+    public void exportAll() {
+        notificationService.sendExportSignal(clients);
+    }
+
     private static String generateClientId() {
         return "Client-" + UUID.randomUUID() + "-" + System.currentTimeMillis();
     }

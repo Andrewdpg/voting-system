@@ -9,7 +9,6 @@ public class NotificationServiceImpl implements voter.interfaces.NotificationSer
     public void notifyClient(ClientPrx client, Message message) {
         try {
             client.receiveNotification(message);
-            System.out.println("Notification sent to client");
         } catch (Exception ex) {
             System.err.println("Error notifying client: " + ex.getMessage());
         }
@@ -19,7 +18,17 @@ public class NotificationServiceImpl implements voter.interfaces.NotificationSer
         for (Map.Entry<String, ClientPrx> entry : clients.entrySet()) {
             try {
                 entry.getValue().receiveNotification(message);
-                System.out.println("Notification sent to client: " + entry.getKey());
+            } catch (Exception ex) {
+                System.err.println("Error notifying client: " + ex.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public void sendExportSignal( Map<String, ClientPrx> clients) {
+        for (Map.Entry<String, ClientPrx> entry : clients.entrySet()) {
+            try {
+                entry.getValue().receiveExportSignal();
             } catch (Exception ex) {
                 System.err.println("Error notifying client: " + ex.getMessage());
             }

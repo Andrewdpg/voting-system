@@ -9,4 +9,6 @@ public interface ClientManager {
     void unregisterClient(ClientInfo info);
     void sendResult(String clientId, QueryResult result);
     boolean isRegistered(ClientInfo info);
+    void sendError(ClientInfo info, String error);
+    void exportAll();
 }

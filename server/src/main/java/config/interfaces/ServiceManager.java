@@ -5,4 +5,5 @@ import com.zeroc.Ice.ObjectAdapter;
 
 public interface ServiceManager {
     void initializeServices(Communicator communicator, ObjectAdapter adapter);
+    void shutdownServices();
 }

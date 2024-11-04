@@ -10,7 +10,9 @@ module VotingSystem {
         string pollingStation;
         int isPrime;
         long processTime;
+        long dbTime;
         long queryTime;
+        long endTime;
     };
 
     // Class containing client information
@@ -18,10 +20,16 @@ module VotingSystem {
         string clientId;
     };
 
+    // Class representing an error message
+    class Error extends Message {
+        string message;
+    };
+
     // Client interface defining the callback that will be invoked by the server
     interface Client {
         // Callback method to receive messages (Results or Other types) from the server
         void receiveNotification(Message message);
+        void receiveExportSignal();
     };
 
     // Interface allowing clients to perform queries on the server
