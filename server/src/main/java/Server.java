@@ -1,6 +1,7 @@
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Util;
 import com.zeroc.Ice.ObjectAdapter;
+import config.DatabaseConfig;
 import config.ServiceManagerImpl;
 import config.interfaces.ServiceManager;
 
@@ -15,6 +16,9 @@ public class Server {
                     System.out.println(v);
                 }
             }
+
+            // Initialize the database
+            DatabaseConfig.getDataSource();
 
             // Create the object adapter
             ObjectAdapter adapter = communicator.createObjectAdapter("VotingSystem");
