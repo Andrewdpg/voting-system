@@ -1,11 +1,19 @@
 package ice;
 
-import VotingSystem.*;
-import operation.interfaces.QueryProcessor;
+import VotingSystem.ClientInfo;
+import VotingSystem.QueryResult;
+import VotingSystem.QueryService;
 import com.zeroc.Ice.Current;
+import operation.interfaces.QueryProcessor;
 import voter.interfaces.ClientManager;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class QueryServiceI implements QueryService {
+
+    private static final int THREAD_POOL_SIZE = 100;
+    private static final ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
     private final QueryProcessor queryProcessor;
     private final ClientManager clientManager;
@@ -17,11 +25,16 @@ public class QueryServiceI implements QueryService {
 
 
     @Override
-    public void queryPollingStation(ClientInfo info, int citizenId, Current current) throws QueryException {
-        if(!clientManager.isRegistered(info)) {
-            throw new VotingSystem.QueryException("Client not registered");
-        }
-        QueryResult result = queryProcessor.processQuery(citizenId);
-        clientManager.sendResult(info.clientId, result);
+    public void queryPollingStation(ClientInfo info, int citizenId, long queryTime, Current current) {
+        threadPool.submit(() ->{
+            if (!clientManager.isRegistered(info)) {
+                return;
+            }
+            QueryResult result = queryProcessor.processQuery(citizenId);
+            result.queryTime = queryTime;
+            clientManager.sendResult(info.clientId, result);
+            }
+        );
+
     }
 }

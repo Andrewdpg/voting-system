@@ -1,10 +1,5 @@
 module VotingSystem {
 
-    // Exception thrown when a query fails
-    exception QueryException {
-        string reason;
-    };
-
     // Base class for all messages
     class Message {
     };
@@ -15,6 +10,7 @@ module VotingSystem {
         string pollingStation;
         int isPrime;
         long processTime;
+        long queryTime;
     };
 
     // Class containing client information
@@ -31,7 +27,7 @@ module VotingSystem {
     // Interface allowing clients to perform queries on the server
     interface QueryService {
         // Method to query a polling station based on citizen ID
-        void queryPollingStation(ClientInfo info, int citizenId) throws QueryException;
+        void queryPollingStation(ClientInfo info, int citizenId, long queryTime);
     };
 
     // Interface for client registration and removal on the server

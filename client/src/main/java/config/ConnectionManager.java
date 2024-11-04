@@ -29,7 +29,8 @@ public class ConnectionManager {
 
     public void queryPollingStation(ClientInfo info, int stationId) {
         try {
-            queryServer.queryPollingStation(info, stationId);
+            long time = System.currentTimeMillis();
+            queryServer.queryPollingStation(info, stationId, time);
         } catch (QueryException e) {
             System.out.println("Query failed: " + e.reason);
         }
