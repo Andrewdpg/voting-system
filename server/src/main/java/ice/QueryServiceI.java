@@ -12,7 +12,7 @@ import java.util.concurrent.Executors;
 
 public class QueryServiceI implements QueryService {
 
-    private static final int THREAD_POOL_SIZE = 100;
+    private static final int THREAD_POOL_SIZE = 70;
     private static final ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
     private final QueryProcessor queryProcessor;
@@ -26,11 +26,12 @@ public class QueryServiceI implements QueryService {
 
     @Override
     public void queryPollingStation(ClientInfo info, int citizenId, long queryTime, Current current) {
+        long start = System.currentTimeMillis();
         threadPool.submit(() ->{
             if (!clientManager.isRegistered(info)) {
                 return;
             }
-            QueryResult result = queryProcessor.processQuery(citizenId);
+            QueryResult result = queryProcessor.processQuery(citizenId, start);
             result.queryTime = queryTime;
             clientManager.sendResult(info.clientId, result);
             }

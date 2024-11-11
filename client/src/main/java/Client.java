@@ -31,9 +31,8 @@ public class Client {
                 Thread.onSpinWait();
             }
 
-
-            for (int i = 0; i < 1000; i++) {
-                new Thread(() -> serviceManager.queryPollingStation(info, (int)(Math.random() * 100000))).start();
+            for (int i = 0; i < 100000; i++) {
+                new Thread(() -> serviceManager.queryPollingStation(info, 100000000 + ((int) (Math.random() *100000000)))).start();
             }
 
             System.out.println("All queries sent");

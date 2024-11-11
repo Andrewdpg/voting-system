@@ -6,10 +6,8 @@ import VotingSystem.QueryResult;
 import com.zeroc.Ice.Current;
 import lambda.OnExport;
 import lambda.OnRegister;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -25,7 +23,7 @@ public class CallbackHandler implements VotingSystem.Client {
     private static final ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
     private static final Queue<Message> messageQueue = new ConcurrentLinkedQueue<>();
-    private static final String FILE_PATH = "output.xlsx";
+    private static final String FILE_PATH = "out.csv";
 
     public CallbackHandler(OnRegister onRegister, OnExport onExport) {
         this.onRegister = onRegister;
@@ -34,18 +32,17 @@ public class CallbackHandler implements VotingSystem.Client {
 
     @Override
     public void receiveNotification(Message message, Current current) {
-        threadPool.submit( ()->{
+        long endtime = System.currentTimeMillis();
+        threadPool.submit(() -> {
             if (message instanceof ClientInfo clientInfo) {
                 System.out.println("Client info received: " + clientInfo);
                 onRegister.onRegister(clientInfo);
-                return;
             } else if (message instanceof QueryResult queryResult) {
-                QueryResult result = (QueryResult) message;
-                result.endTime = System.currentTimeMillis();
-                messageQueue.add(result);
-                return;
+                queryResult.endTime = endtime;
+                messageQueue.add(queryResult);
+            } else {
+                messageQueue.add(message);
             }
-            messageQueue.add(message);
         });
     }
 
@@ -58,35 +55,34 @@ public class CallbackHandler implements VotingSystem.Client {
     }
 
     public void exportToExcel() {
-        try (Workbook workbook = new XSSFWorkbook()) {
-            Sheet sheet = workbook.createSheet("Messages");
-            int rowNum = 0;
+        final int BATCH_SIZE = 1000;
 
-            for (Message message : messageQueue) {
-                Row row = sheet.createRow(rowNum++);
-                if (message instanceof QueryResult queryResult) {
-                    row.createCell(0).setCellValue(queryResult.citizenId);
-                    row.createCell(1).setCellValue(queryResult.pollingStation);
-                    row.createCell(2).setCellValue(queryResult.isPrime);
-                    row.createCell(3).setCellValue(queryResult.dbTime);
-                    row.createCell(4).setCellValue(queryResult.processTime);
-                    row.createCell(5).setCellValue(queryResult.queryTime);
-                    row.createCell(6).setCellValue(queryResult.endTime);
-                } else if (message instanceof ClientInfo clientInfo) {
-                    row.createCell(0).setCellValue(clientInfo.clientId);
-                    onRegister.onRegister(clientInfo);
-                } else {
-                    row.createCell(0).setCellValue("Unknown message type");
+        try (FileWriter writer = new FileWriter(FILE_PATH)) {
+            writer.append("CitizenId,Test,IsPrime,DbTime,ProcessTime,QueryTime,EndTime\n");
+            while (!messageQueue.isEmpty()) {
+                for (int i = 0; i < BATCH_SIZE && !messageQueue.isEmpty(); i++) {
+                    Message message = messageQueue.poll();
+                    if (message instanceof QueryResult queryResult) {
+                        writer.append(String.valueOf(queryResult.citizenId)).append(",")
+                            .append(queryResult.pollingStation != null ? "true" : "false").append(",")
+                            .append(String.valueOf(queryResult.isPrime)).append(",")
+                            .append(String.valueOf(queryResult.dbTime)).append(",")
+                            .append(String.valueOf(queryResult.processTime)).append(",")
+                            .append(String.valueOf(queryResult.queryTime)).append(",")
+                            .append(String.valueOf(queryResult.endTime)).append('\n');
+                    } else if (message instanceof ClientInfo clientInfo) {
+                        writer.append(clientInfo.clientId).append(',')
+                            .append("ClientInfo").append('\n');
+                        onRegister.onRegister(clientInfo);
+                    } else {
+                        writer.append("Unknown message type").append('\n');
+                    }
                 }
-            }
-
-            try (FileOutputStream fileOut = new FileOutputStream(FILE_PATH)) {
-                workbook.write(fileOut);
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            System.out.println("Exported to " + FILE_PATH);
         }
     }
 }

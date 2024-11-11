@@ -10,9 +10,7 @@ public class QueryProcessorImpl implements QueryProcessor {
     Validator executor = new ValidatorImpl();
     Persistence persistence = new PersistenceImpl();
 
-    public QueryResult processQuery(int citizenId) {
-        long start = System.currentTimeMillis();
-
+    public QueryResult processQuery(int citizenId, long start) {
         QueryResult result = new QueryResult();
         result.citizenId = citizenId;
         long dbInit = System.currentTimeMillis();

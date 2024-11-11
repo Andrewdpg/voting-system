@@ -2,7 +2,6 @@ package config;
 
 import VotingSystem.ClientInfo;
 import VotingSystem.ClientPrx;
-import VotingSystem.QueryException;
 import VotingSystem.QueryServicePrx;
 import VotingSystem.RegistrationServicePrx;
 import com.zeroc.Ice.Communicator;
@@ -28,11 +27,7 @@ public class ConnectionManager {
     }
 
     public void queryPollingStation(ClientInfo info, int stationId) {
-        try {
-            long time = System.currentTimeMillis();
-            queryServer.queryPollingStation(info, stationId, time);
-        } catch (QueryException e) {
-            System.out.println("Query failed: " + e.reason);
-        }
+        long time = System.currentTimeMillis();
+        queryServer.queryPollingStation(info, stationId, time);
     }
 }
