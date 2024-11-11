@@ -1,7 +1,7 @@
 # The client reads this property to create the reference to the
 # "RegistrationService" and "QueryService" objects in the server.
-RegistrationService.Proxy=RegistrationService:tcp -h localhost -p 9099
-QueryService.Proxy=QueryService:tcp -h localhost -p 9099
+RegistrationService.Proxy=RegistrationService:tcp -h xhgrid3 -p 9099
+QueryService.Proxy=QueryService:tcp -h xhgrid3 -p 9099
 
 # Endpoint for the callback adapter
 CallbackAdapter.Endpoints=tcp -p 0

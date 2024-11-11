@@ -30,8 +30,8 @@ public class DatabaseConfig {
         config.setUsername(properties.getProperty("username"));
         config.setPassword(properties.getProperty("password"));
 
-        config.setMaximumPoolSize(1000);
-        config.setMinimumIdle(10);
+        config.setMaximumPoolSize(70);
+        config.setMinimumIdle(20);
         config.setConnectionTimeout(10000);
         config.setIdleTimeout(60000);
         config.setMaxLifetime(1800000);

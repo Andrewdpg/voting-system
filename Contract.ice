@@ -1,5 +1,12 @@
 module VotingSystem {
 
+    class PollingStation {
+        string post;
+        string address;
+        string city;
+        string state;
+    };
+
     // Base class for all messages
     class Message {
     };
@@ -7,7 +14,7 @@ module VotingSystem {
     // Class representing the result of a voting place query
     class QueryResult extends Message {
         int citizenId;
-        string pollingStation;
+        PollingStation pollingStation;
         int isPrime;
         long processTime;
         long dbTime;

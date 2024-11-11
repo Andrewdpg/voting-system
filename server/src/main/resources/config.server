@@ -1,5 +1,5 @@
 # Endpoint properties
-VotingSystem.Endpoints=tcp -p 9099
+VotingSystem.Endpoints=tcp -h 0.0.0.0 -p 9099
 
 # Listening properties
 Ice.Default.Host=localhost

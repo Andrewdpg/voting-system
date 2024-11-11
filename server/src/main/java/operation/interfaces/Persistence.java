@@ -1,5 +1,7 @@
 package operation.interfaces;
 
+import VotingSystem.PollingStation;
+
 public interface Persistence {
-    String getPollingStation(int citizenId);
+    PollingStation getPollingStation(int citizenId);
 }
