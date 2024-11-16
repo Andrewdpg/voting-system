@@ -56,20 +56,31 @@ public class CallbackHandler implements VotingSystem.Client {
 
     public void exportToExcel() {
         final int BATCH_SIZE = 1000;
-
+        int totalRequests = 0;
+        long totalResponseTime = 0;
+        long startTime = 0;
+        long endTime = 0;
         try (FileWriter writer = new FileWriter(FILE_PATH)) {
-            writer.append("CitizenId,Test,IsPrime,DbTime,ProcessTime,QueryTime,EndTime\n");
+            writer.append("CitizenId,Test,IsPrime,DbTime,ProcessTime,QueryTime,EndTime,ResponseTime\n");
             while (!messageQueue.isEmpty()) {
                 for (int i = 0; i < BATCH_SIZE && !messageQueue.isEmpty(); i++) {
                     Message message = messageQueue.poll();
                     if (message instanceof QueryResult queryResult) {
+                        if(startTime == 0) {
+                            startTime = queryResult.queryTime;
+                        }
+                        endTime = queryResult.queryTime;
+                        long responseTime = queryResult.endTime - queryResult.queryTime;
+                        totalRequests++;
+                        totalResponseTime += responseTime;
                         writer.append(String.valueOf(queryResult.citizenId)).append(",")
                             .append(queryResult.pollingStation != null ? "true" : "false").append(",")
                             .append(String.valueOf(queryResult.isPrime)).append(",")
                             .append(String.valueOf(queryResult.dbTime)).append(",")
                             .append(String.valueOf(queryResult.processTime)).append(",")
                             .append(String.valueOf(queryResult.queryTime)).append(",")
-                            .append(String.valueOf(queryResult.endTime)).append('\n');
+                            .append(String.valueOf(queryResult.endTime)).append(",")
+                            .append(String.valueOf(responseTime)).append('\n');
                     } else if (message instanceof ClientInfo clientInfo) {
                         writer.append(clientInfo.clientId).append(',')
                             .append("ClientInfo").append('\n');
@@ -82,7 +93,15 @@ public class CallbackHandler implements VotingSystem.Client {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            long totalTime = endTime - startTime;
+            double requestsPerSecond = totalRequests / (totalTime / 1000.0);
+            double averageResponseTime = totalRequests > 0 ? totalResponseTime / (double) totalRequests : 0;
+
             System.out.println("Exported to " + FILE_PATH);
+            System.out.println("Total Requests: " + totalRequests);
+            System.out.println("Total Time (ms): " + totalTime);
+            System.out.println("Requests per Second: " + requestsPerSecond);
+            System.out.println("Average Response Time (ms): " + averageResponseTime);
         }
     }
 }
