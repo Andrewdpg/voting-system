@@ -6,6 +6,8 @@ import config.ConnectionManager;
 import ice.CallbackHandler;
 
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class Client {
 
@@ -31,11 +33,29 @@ public class Client {
                 Thread.onSpinWait();
             }
 
-            for (int i = 0; i < 100000; i++) {
-                new Thread(() -> serviceManager.queryPollingStation(info, 100000000 + ((int) (Math.random() *100000000)))).start();
+            int numberOfThreads = Runtime.getRuntime().availableProcessors() * 8;
+            ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(numberOfThreads);
+
+            int totalRequests = 1_000_000;
+            final int batchSize = totalRequests / numberOfThreads;
+
+            for (int i = 0; i < numberOfThreads; i++) {
+                executor.submit(() -> {
+                    for (int j = 0; j < batchSize; j++) {
+                        final int stationId = 100_000_000 + ((int) (Math.random() * 100_000_000));
+                        serviceManager.queryPollingStation(info, stationId);
+                    }
+                });
             }
 
-            System.out.println("All queries sent");
+            System.out.println("All queries submitted");
+
+            executor.shutdown();
+            while (!executor.isTerminated()) {
+                Thread.onSpinWait();
+            }
+
+            System.out.println("All queries completed");
 
             while (running) {
                 Thread.onSpinWait();
