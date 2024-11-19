@@ -102,6 +102,7 @@ public class CallbackHandler implements VotingSystem.Client {
             System.out.println("Total Time (ms): " + totalTime);
             System.out.println("Requests per Second: " + requestsPerSecond);
             System.out.println("Average Response Time (ms): " + averageResponseTime);
+            onExport.onExport(false);
         }
     }
 }

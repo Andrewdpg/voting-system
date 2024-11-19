@@ -1,0 +1,22 @@
+<icegrid>
+    <application name="VotingSystem">
+        <server-template id="Worker">
+            <parameter name="index"/>
+            <parameter name="host"/>
+            <server id="Worker-${host}-${index}" exe="java" activation="on-demand">
+                <option>-jar</option>
+                <option>../worker/build/libs/worker.jar</option>
+                <adapter name="WorkerAdapter" endpoints="tcp -h localhost">
+                    <object identity="register-${host}-${index}" type="::VotingSystem::RegistrationService" property="IdentityRegister"/>
+                    <object identity="query-${host}-${index}" type="::VotingSystem::QueryService" property="IdentityQuery"/>
+                </adapter>
+            </server>
+        </server-template>
+
+        <node name="xhgrid3">
+            <server-instance template="Worker" index="1" host="xhgrid3"/>
+            <server-instance template="Worker" index="2" host="xhgrid3"/>
+        </node>
+
+    </application>
+</icegrid>

@@ -10,3 +10,4 @@
 rootProject.name = 'voting'
 include 'client'
 include 'server'
+include 'worker'
