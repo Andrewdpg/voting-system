@@ -10,15 +10,9 @@ public class QueryProcessorImpl implements QueryProcessor {
 
     public QueryResult processQuery(int citizenId, long start) {
         QueryResult result = new QueryResult();
+        result.processTime = start;
         result.citizenId = citizenId;
-
-        long dbInit = System.currentTimeMillis();
-        // TODO: query the database
-        result.dbTime = System.currentTimeMillis() - dbInit;
-
         result.isPrime = executor.isPrimeFactorCountPrime(citizenId)  ? 1 : 0;
-        result.processTime = System.currentTimeMillis() - start;
-
         return result;
     }
 

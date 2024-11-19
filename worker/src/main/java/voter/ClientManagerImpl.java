@@ -44,6 +44,11 @@ public class ClientManagerImpl implements voter.interfaces.ClientManager {
         }
     }
 
+    @Override
+    public ClientPrx getCallback(ClientInfo info) {
+        return clients.get(info.clientId);
+    }
+
     private static String generateClientId() {
         return "Client-" + UUID.randomUUID() + "-" + System.currentTimeMillis();
     }

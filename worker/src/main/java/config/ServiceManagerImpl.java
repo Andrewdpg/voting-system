@@ -1,10 +1,11 @@
 package config;
 
-import com.zeroc.Ice.Communicator;
+import VotingSystem.DatabaseServicePrx;
 import com.zeroc.Ice.Identity;
 import com.zeroc.Ice.ObjectAdapter;
 import com.zeroc.Ice.Properties;
 import com.zeroc.Ice.Util;
+import com.zeroc.IceGrid.QueryPrx;
 import config.interfaces.ServiceManager;
 import ice.QueryServiceI;
 import ice.RegistrationServiceI;
@@ -24,13 +25,15 @@ public class ServiceManagerImpl implements ServiceManager {
     }
 
     @Override
-    public void initializeServices(Properties properties, ObjectAdapter adapter) {
+    public void initializeServices(Properties properties, ObjectAdapter adapter, QueryPrx queryPrx) {
         Identity idRegister = Util.stringToIdentity(properties.getProperty("IdentityRegister"));
         Identity idQuery = Util.stringToIdentity(properties.getProperty("IdentityQuery"));
 
+        DatabaseServicePrx service = DatabaseServicePrx.checkedCast(queryPrx.findObjectByType("::VotingSystem::DatabaseService"));
+
         // Create the servant
         com.zeroc.Ice.Object registration = new RegistrationServiceI(clientManager);
-        com.zeroc.Ice.Object query = new QueryServiceI(queryProcessor, clientManager);
+        com.zeroc.Ice.Object query = new QueryServiceI(queryProcessor, clientManager, service);
 
         // Add the servant to the adapter
         adapter.add(registration, idRegister);

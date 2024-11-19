@@ -257,3 +257,6 @@ replay_pid*
 
 .idea/*
 # End of https://www.toptal.com/developers/gitignore/api/gradle,java,intellij,visualstudiocode,eclipse
+
+icegrid/data/*
+VotingSystem/*

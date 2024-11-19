@@ -45,6 +45,10 @@ module VotingSystem {
         void queryPollingStation(ClientInfo info, int citizenId, long queryTime);
     };
 
+    interface DatabaseService {
+       void queryPollingStation(Client* client, QueryResult partialResult);
+    };
+
     // Interface for client registration and removal on the server
     interface RegistrationService {
         // Method to register a client as an observer

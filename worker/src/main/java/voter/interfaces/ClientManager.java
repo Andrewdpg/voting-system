@@ -10,4 +10,5 @@ public interface ClientManager {
     void sendResult(String clientId, QueryResult result);
     boolean isRegistered(ClientInfo info);
     void sendError(ClientInfo info, String error);
+    ClientPrx getCallback(ClientInfo info);
 }

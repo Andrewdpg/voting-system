@@ -15,10 +15,12 @@ public class QueryServiceI implements QueryService {
 
     private final QueryProcessor queryProcessor;
     private final ClientManager clientManager;
+    private final DatabaseServicePrx database;
 
-    public QueryServiceI(QueryProcessor queryProcessor, ClientManager clientManager) {
+    public QueryServiceI(QueryProcessor queryProcessor, ClientManager clientManager, DatabaseServicePrx database) {
         this.queryProcessor = queryProcessor;
         this.clientManager = clientManager;
+        this.database = database;
     }
 
     @Override
@@ -30,7 +32,7 @@ public class QueryServiceI implements QueryService {
             }
             QueryResult result = queryProcessor.processQuery(citizenId, start);
             result.queryTime = queryTime;
-            clientManager.sendResult(info.clientId, result);
+            database.queryPollingStation(clientManager.getCallback(info), result);
             }
         );
 
