@@ -2,7 +2,7 @@
 # "RegistrationService" and "QueryService" objects in the server.
 
 # Conexión al registro IceGrid
-Ice.Default.Locator=IceGrid/Locator:tcp -h xhgrid4 -p 4061
+Ice.Default.Locator=IceGrid/Locator:tcp -h xhgrid2 -p 4061
 
 # Endpoint for the callback adapter
 CallbackAdapter.Endpoints=tcp -p 0

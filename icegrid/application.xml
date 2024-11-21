@@ -5,18 +5,27 @@
             <parameter name="host"/>
             <server id="Worker-${host}-${index}" exe="java" activation="on-demand">
                 <option>-jar</option>
-                <option>../worker/build/libs/worker.jar</option>
-                <adapter name="WorkerAdapter" endpoints="tcp -h localhost">
+                <option>worker.jar</option>
+                <adapter name="WorkerAdapter" endpoints="tcp -h *">
                     <object identity="register-${host}-${index}" type="::VotingSystem::RegistrationService" property="IdentityRegister"/>
                     <object identity="query-${host}-${index}" type="::VotingSystem::QueryService" property="IdentityQuery"/>
                 </adapter>
             </server>
         </server-template>
 
-        <node name="xhgrid3">
-            <server-instance template="Worker" index="1" host="xhgrid3"/>
-            <server-instance template="Worker" index="2" host="xhgrid3"/>
-        </node>
+        <server-template id="Database">
+            <parameter name="index"/>
+            <parameter name="host"/>
+            <server id="Database-${host}-${index}" exe="java" activation="always">
+                <option>-jar</option>
+                <option>database.jar</option>
+                <adapter name="DatabaseAdapter" endpoints="tcp -h *">
+                    <object identity="database-${host}-${index}" type="::VotingSystem::DatabaseService" property="IdentityDatabase"/>
+                </adapter>
+            </server>
+        </server-template>
+
+{--hosts--}
 
     </application>
 </icegrid>
