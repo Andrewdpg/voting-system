@@ -18,11 +18,11 @@ public class DatabaseConfig {
         Properties properties = new Properties();
         try (InputStream input = DatabaseConfig.class.getClassLoader().getResourceAsStream("database.properties")) {
             if (input == null) {
-                throw new RuntimeException("Unable to find database.properties");
+                throw new IllegalStateException("database.properties file not found");
             }
             properties.load(input);
         } catch (IOException ex) {
-            throw new RuntimeException("Failed to load database properties", ex);
+            throw new RuntimeException("Failed to load database.properties", ex);
         }
 
         HikariConfig config = new HikariConfig();
@@ -32,14 +32,17 @@ public class DatabaseConfig {
 
         config.setMaximumPoolSize(70);
         config.setMinimumIdle(20);
-        config.setConnectionTimeout(10000);
-        config.setIdleTimeout(60000);
+        config.setConnectionTimeout(15000);
+        config.setIdleTimeout(300000);
         config.setMaxLifetime(1800000);
 
         config.addDataSourceProperty("cachePrepStmts", "true");
         config.addDataSourceProperty("prepStmtCacheSize", "250");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
         config.addDataSourceProperty("useServerPrepStmts", "true");
+        config.addDataSourceProperty("tcpKeepAlive", "true");
+        config.addDataSourceProperty("applicationName", "MyApp");
+        config.addDataSourceProperty("socketTimeout", "30");
 
         dataSource = new HikariDataSource(config);
     }

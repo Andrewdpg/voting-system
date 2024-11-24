@@ -1,32 +1,27 @@
 package ice;
 
-import VotingSystem.ClientInfo;
 import VotingSystem.Message;
 import VotingSystem.QueryResult;
 import com.zeroc.Ice.Current;
 import lambda.OnExport;
-import lambda.OnRegister;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class CallbackHandler implements VotingSystem.Client {
 
-    private final OnRegister onRegister;
     private final OnExport onExport;
 
-    private static final int THREAD_POOL_SIZE = 100;
-    private static final ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+    private static final ExecutorService threadPool = Executors.newCachedThreadPool();
 
-    private static final Queue<Message> messageQueue = new ConcurrentLinkedQueue<>();
+    private static final Queue<Message> messageQueue = new LinkedBlockingQueue<>();
     private static final String FILE_PATH = "out.csv";
 
-    public CallbackHandler(OnRegister onRegister, OnExport onExport) {
-        this.onRegister = onRegister;
+    public CallbackHandler(OnExport onExport) {
         this.onExport = onExport;
     }
 
@@ -34,10 +29,7 @@ public class CallbackHandler implements VotingSystem.Client {
     public void receiveNotification(Message message, Current current) {
         long endtime = System.currentTimeMillis();
         threadPool.submit(() -> {
-            if (message instanceof ClientInfo clientInfo) {
-                System.out.println("Client info received: " + clientInfo);
-                onRegister.onRegister(clientInfo);
-            } else if (message instanceof QueryResult queryResult) {
+            if (message instanceof QueryResult queryResult) {
                 queryResult.endTime = endtime;
                 messageQueue.add(queryResult);
             } else {
@@ -81,10 +73,6 @@ public class CallbackHandler implements VotingSystem.Client {
                             .append(String.valueOf(queryResult.queryTime)).append(",")
                             .append(String.valueOf(queryResult.endTime)).append(",")
                             .append(String.valueOf(responseTime)).append('\n');
-                    } else if (message instanceof ClientInfo clientInfo) {
-                        writer.append(clientInfo.clientId).append(',')
-                            .append("ClientInfo").append('\n');
-                        onRegister.onRegister(clientInfo);
                     } else {
                         writer.append("Unknown message type").append('\n');
                     }
@@ -102,7 +90,6 @@ public class CallbackHandler implements VotingSystem.Client {
             System.out.println("Total Time (ms): " + totalTime);
             System.out.println("Requests per Second: " + requestsPerSecond);
             System.out.println("Average Response Time (ms): " + averageResponseTime);
-            onExport.onExport(false);
         }
     }
 }

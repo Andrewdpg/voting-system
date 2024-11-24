@@ -22,11 +22,6 @@ module VotingSystem {
         long endTime;
     };
 
-    // Class containing client information
-    class ClientInfo extends Message {
-        string clientId;
-    };
-
     // Class representing an error message
     class Error extends Message {
         string message;
@@ -42,19 +37,10 @@ module VotingSystem {
     // Interface allowing clients to perform queries on the server
     interface QueryService {
         // Method to query a polling station based on citizen ID
-        void queryPollingStation(ClientInfo info, int citizenId, long queryTime);
+        void queryPollingStation(Client* client, int citizenId, long queryTime);
     };
 
     interface DatabaseService {
        void queryPollingStation(Client* client, QueryResult partialResult);
-    };
-
-    // Interface for client registration and removal on the server
-    interface RegistrationService {
-        // Method to register a client as an observer
-        void registerClient(Client* clientProxy);
-
-        // Method to remove a client from the observer registry
-        void unregisterClient(ClientInfo info);
     };
 };

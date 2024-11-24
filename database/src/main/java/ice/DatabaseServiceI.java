@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 
 public class DatabaseServiceI implements DatabaseService {
 
-    private static final int THREAD_POOL_SIZE = 70;
+    private static final int THREAD_POOL_SIZE = 200;
     private static final ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
     private final Persistence persistence;
@@ -27,8 +27,10 @@ public class DatabaseServiceI implements DatabaseService {
             if (client == null) {
                 return;
             }
+            long init = System.currentTimeMillis();
             partialResult.pollingStation = persistence.getPollingStation(partialResult.citizenId);
-            partialResult.dbTime = System.currentTimeMillis() - start;
+            long time = System.currentTimeMillis();
+            partialResult.dbTime = time - init;
             client.receiveNotification(partialResult);
             }
         );

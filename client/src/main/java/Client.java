@@ -1,4 +1,3 @@
-import VotingSystem.ClientInfo;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.ObjectAdapter;
 import VotingSystem.ClientPrx;
@@ -7,13 +6,13 @@ import config.ConnectionManager;
 import ice.CallbackHandler;
 
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 public class Client {
 
     private static volatile boolean running = true;
-    private static volatile ClientInfo info = null;
 
     public static void main(String[] args) {
         List<String> extraArgs = new java.util.ArrayList<>();
@@ -26,18 +25,11 @@ public class Client {
                 throw new Error("Invalid proxy");
             }
 
-            CallbackHandler callbackHandler = new CallbackHandler(Client::setInfo, Client::setRunning);
+            CallbackHandler callbackHandler = new CallbackHandler(Client::setRunning);
             com.zeroc.Ice.ObjectPrx proxy = adapter.addWithUUID(callbackHandler);
             adapter.activate();
 
             ClientPrx callback = ClientPrx.checkedCast(proxy);
-
-            ConnectionManager serviceManager = new ConnectionManager(query);
-            serviceManager.registerClient(callback);
-
-            while (info == null) {
-                Thread.onSpinWait();
-            }
 
             int numberOfThreads = Runtime.getRuntime().availableProcessors() * 8;
             ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(numberOfThreads);
@@ -45,12 +37,21 @@ public class Client {
             int totalRequests = 1_000_000;
             final int batchSize = totalRequests / numberOfThreads;
 
+            new Thread(() -> {
+                while (running) {
+                    new Scanner(System.in).nextLine();
+                    System.out.println("Exporting to Excel");
+                    callbackHandler.exportToExcel();
+                }
+            }).start();
+
             System.out.println("Submitting queries");
             for (int i = 0; i < numberOfThreads; i++) {
+                ConnectionManager serviceManager = new ConnectionManager(query);
                 executor.submit(() -> {
                     for (int j = 0; j < batchSize; j++) {
                         final int stationId = 100_000_000 + ((int) (Math.random() * 100_000_000));
-                        serviceManager.queryPollingStation(info, stationId);
+                        serviceManager.queryPollingStation(callback, stationId);
                     }
                 });
             }
@@ -70,10 +71,6 @@ public class Client {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public static void setInfo(ClientInfo info) {
-        Client.info = info;
     }
 
     public static void setRunning(boolean running) {
