@@ -11,7 +11,7 @@ import ice.SubscriberI;
 
 public class Client {
 
-    private static volatile boolean running = true;
+    private static Communicator communicator;
 
     public static void main(String[] args) {
         if (args.length < 1) {
@@ -32,7 +32,8 @@ public class Client {
         initData.properties.setProperty("Ice.ThreadPool.Server.StackSize", "131072");
         initData.properties.setProperty("Ice.ThreadPool.Server.Serialize", "0");
 
-        try (Communicator communicator = com.zeroc.Ice.Util.initialize(initData)) {
+        try {
+            communicator = com.zeroc.Ice.Util.initialize(initData);
             ObjectAdapter adapter = communicator.createObjectAdapter("CallbackAdapter");
 
             QueryPrx query = QueryPrx.checkedCast(communicator.stringToProxy("IceGrid/Query"));
@@ -52,15 +53,15 @@ public class Client {
 
             serviceManager.registerClient(subscriberProxy);
 
-            while (running) {
-                Thread.onSpinWait();
-            }
+            communicator.waitForShutdown();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public static void setRunning(boolean running) {
-        Client.running = running;
+        if (!running) {
+            communicator.shutdown();
+        }
     }
 }

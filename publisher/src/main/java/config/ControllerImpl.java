@@ -13,6 +13,8 @@ import java.util.Scanner;
 
 public class ControllerImpl implements Controller {
 
+    private static final int MAX_BATCH_SIZE = 100000;
+
     private final ClientManager clientManager;
     private final IdManager idManager;
     private final RequestService requestService;
@@ -74,8 +76,15 @@ public class ControllerImpl implements Controller {
 
         List<SubscriberPrx> clients = clientManager.activeClients();
         idManager.divideInto(clients.size());
-        clients.forEach(client -> client.receiveBatchAsync(idManager.getBatch()));
 
+        for (SubscriberPrx client : clients) {
+            String[] batch = idManager.getBatch();
+            for (int index = 0; index < batch.length; index+=MAX_BATCH_SIZE) {
+                String[] subBatch = new String[Math.min(MAX_BATCH_SIZE, batch.length - index)];
+                System.arraycopy(batch, index, subBatch, 0, subBatch.length);
+                client.receiveBatchAsync(subBatch);
+            }
+        }
         System.out.println("All batches sent");
     }
 

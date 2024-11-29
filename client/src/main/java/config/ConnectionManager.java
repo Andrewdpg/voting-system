@@ -25,15 +25,6 @@ public class ConnectionManager {
     }
 
     public QueryServicePrx getQueryServer() {
-        QueryServicePrx service = null;
-        while (service == null) {
-            try {
-                service = QueryServicePrx.checkedCast(queryPrx.findObjectByType("::VotingSystem::QueryService"));
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return service;
+        return QueryServicePrx.checkedCast(queryPrx.findObjectByType("::VotingSystem::QueryService"));
     }
 }

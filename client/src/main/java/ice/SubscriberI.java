@@ -38,15 +38,18 @@ public class SubscriberI implements VotingSystem.Subscriber {
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(numberOfThreads);
 
         int totalRequests = batch.length;
-        final int batchSize = Math.round((float) totalRequests / numberOfThreads);
+        final int batchSize = Math.round((float) totalRequests / numberOfThreads)+1;
 
         System.out.println("Submitting queries");
         for (int i = 0; i < numberOfThreads; i++) {
             QueryServicePrx service = serviceManager.getQueryServer();
-            System.out.println("Thread " + i + " started");
+            if (service == null) {
+                System.out.println("Service not available");
+                return;
+            }
             int finalI = i;
             executor.submit(() -> {
-                for (int j = 0; j < batchSize; j++) {
+                for (int j = 0; j < batchSize && j < batch.length; j++) {
                     if (finalI * batchSize + j >= totalRequests) {
                         break;
                     }
