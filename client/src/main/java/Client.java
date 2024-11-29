@@ -1,23 +1,38 @@
+import VotingSystem.SubscriberPrx;
 import com.zeroc.Ice.Communicator;
+import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ObjectAdapter;
 import VotingSystem.ClientPrx;
+import com.zeroc.Ice.Util;
 import com.zeroc.IceGrid.QueryPrx;
 import config.ConnectionManager;
 import ice.CallbackHandler;
-
-import java.util.List;
-import java.util.Scanner;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
+import ice.SubscriberI;
 
 public class Client {
 
     private static volatile boolean running = true;
 
     public static void main(String[] args) {
-        List<String> extraArgs = new java.util.ArrayList<>();
+        if (args.length < 1) {
+            System.err.println("Usage: java -jar client.jar <host>");
+            System.exit(1);
+        }
 
-        try (Communicator communicator = com.zeroc.Ice.Util.initialize(args, "config.client", extraArgs)) {
+        String host = args[0];
+
+        InitializationData initData = new InitializationData();
+        initData.properties = Util.createProperties();
+        initData.properties.setProperty("Ice.Default.Locator", "IceGrid/Locator:tcp -h " + host + " -p 4061");
+        initData.properties.setProperty("CallbackAdapter.Endpoints", "tcp -p 0");
+        initData.properties.setProperty("Ice.ThreadPool.Server.Size", "20");
+        initData.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "50");
+        initData.properties.setProperty("Ice.ThreadPool.Client.Size", "50");
+        initData.properties.setProperty("Ice.ThreadPool.Client.SizeMax", "100");
+        initData.properties.setProperty("Ice.ThreadPool.Server.StackSize", "131072");
+        initData.properties.setProperty("Ice.ThreadPool.Server.Serialize", "0");
+
+        try (Communicator communicator = com.zeroc.Ice.Util.initialize(initData)) {
             ObjectAdapter adapter = communicator.createObjectAdapter("CallbackAdapter");
 
             QueryPrx query = QueryPrx.checkedCast(communicator.stringToProxy("IceGrid/Query"));
@@ -25,45 +40,17 @@ public class Client {
                 throw new Error("Invalid proxy");
             }
 
-            CallbackHandler callbackHandler = new CallbackHandler(Client::setRunning);
-            com.zeroc.Ice.ObjectPrx proxy = adapter.addWithUUID(callbackHandler);
+            ConnectionManager serviceManager = new ConnectionManager(query, communicator);
+
+            CallbackHandler callbackHandler = new CallbackHandler();
+            ClientPrx callback = ClientPrx.checkedCast(adapter.addWithUUID(callbackHandler));
+
+            SubscriberI subscriber = new SubscriberI(serviceManager, callback, Client::setRunning);
+            SubscriberPrx subscriberProxy = SubscriberPrx.checkedCast(adapter.addWithUUID(subscriber));
+
             adapter.activate();
 
-            ClientPrx callback = ClientPrx.checkedCast(proxy);
-
-            int numberOfThreads = Runtime.getRuntime().availableProcessors() * 8;
-            ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(numberOfThreads);
-
-            int totalRequests = 1_000_000;
-            final int batchSize = totalRequests / numberOfThreads;
-
-            new Thread(() -> {
-                while (running) {
-                    new Scanner(System.in).nextLine();
-                    System.out.println("Exporting to Excel");
-                    callbackHandler.exportToExcel();
-                }
-            }).start();
-
-            System.out.println("Submitting queries");
-            for (int i = 0; i < numberOfThreads; i++) {
-                ConnectionManager serviceManager = new ConnectionManager(query);
-                executor.submit(() -> {
-                    for (int j = 0; j < batchSize; j++) {
-                        final int stationId = 100_000_000 + ((int) (Math.random() * 100_000_000));
-                        serviceManager.queryPollingStation(callback, stationId);
-                    }
-                });
-            }
-
-            System.out.println("All queries submitted");
-
-            executor.shutdown();
-            while (!executor.isTerminated()) {
-                Thread.onSpinWait();
-            }
-
-            System.out.println("All queries completed");
+            serviceManager.registerClient(subscriberProxy);
 
             while (running) {
                 Thread.onSpinWait();

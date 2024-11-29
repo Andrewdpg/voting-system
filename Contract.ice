@@ -1,4 +1,5 @@
 module VotingSystem {
+    sequence<string> Batch;
 
     class PollingStation {
         string post;
@@ -31,7 +32,16 @@ module VotingSystem {
     interface Client {
         // Callback method to receive messages (Results or Other types) from the server
         void receiveNotification(Message message);
+    };
+
+    interface Subscriber {
+        void receiveBatch(Batch batch);
         void receiveExportSignal();
+        void shutdown();
+    };
+
+    interface RegistrationService {
+        void register(Subscriber* client);
     };
 
     // Interface allowing clients to perform queries on the server
