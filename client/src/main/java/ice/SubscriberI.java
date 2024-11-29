@@ -34,21 +34,23 @@ public class SubscriberI implements VotingSystem.Subscriber {
     public void receiveBatch(String[] batch, Current current) {
 
         System.out.println("Batch received - Size: " + batch.length);
-        int numberOfThreads = Runtime.getRuntime().availableProcessors() * 8;
+        int numberOfThreads = Math.min(Runtime.getRuntime().availableProcessors() * 8, batch.length);
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(numberOfThreads);
 
         int totalRequests = batch.length;
-        final int batchSize = (totalRequests / numberOfThreads) + 1;
+        final int batchSize = Math.round((float) totalRequests / numberOfThreads);
 
         System.out.println("Submitting queries");
         for (int i = 0; i < numberOfThreads; i++) {
             QueryServicePrx service = serviceManager.getQueryServer();
             System.out.println("Thread " + i + " started");
+            int finalI = i;
             executor.submit(() -> {
                 for (int j = 0; j < batchSize; j++) {
-                    final int stationId = 100_000_000 + ((int) (Math.random() * 100_000_000));
-                    service.queryPollingStation(callback, stationId, System.currentTimeMillis());
-                    System.out.println("Query submitted: " + stationId);
+                    if (finalI * batchSize + j >= totalRequests) {
+                        break;
+                    }
+                    service.queryPollingStation(callback, batch[finalI * batchSize + j], System.currentTimeMillis());
                 }
             });
         }

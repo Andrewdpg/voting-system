@@ -15,12 +15,12 @@ public class ValidatorImpl implements operation.interfaces.Validator {
         return true;
     }
 
-    public boolean isPrimeFactorCountPrime(int citizenId) {
-        int factors = countPrimeFactors(citizenId);
+    public boolean isPrimeFactorCountPrime(String citizenId) {
+        int factors = countPrimeFactors(Long.valueOf(citizenId));
         return isPrime(factors);
     }
 
-    private int countPrimeFactors(int n) {
+    private int countPrimeFactors(Long n) {
         int count = 0;
         if (n % 2 == 0) {
             count++;

@@ -14,7 +14,7 @@ module VotingSystem {
 
     // Class representing the result of a voting place query
     class QueryResult extends Message {
-        int citizenId;
+        string citizenId;
         PollingStation pollingStation;
         int isPrime;
         long processTime;
@@ -47,7 +47,7 @@ module VotingSystem {
     // Interface allowing clients to perform queries on the server
     interface QueryService {
         // Method to query a polling station based on citizen ID
-        void queryPollingStation(Client* client, int citizenId, long queryTime);
+        void queryPollingStation(Client* client, string citizenId, long queryTime);
     };
 
     interface DatabaseService {

@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class PersistenceImpl implements operation.interfaces.Persistence {
 
-    public PollingStation getPollingStation(int citizenId) {
+    public PollingStation getPollingStation(String citizenId) {
         PollingStation pollingStationInfo = null;
         String sql = "SELECT pv.nombre AS puesto_votacion, pv.direccion, m.nombre AS ciudad, d.nombre AS departamento "
             + "FROM ciudadano c "
@@ -21,7 +21,7 @@ public class PersistenceImpl implements operation.interfaces.Persistence {
         try (Connection connection = DatabaseConfig.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            preparedStatement.setString(1, citizenId + "");
+            preparedStatement.setString(1, citizenId);
 
             try (ResultSet rs = preparedStatement.executeQuery()) {
                 if (rs.next()) {

@@ -1,6 +1,6 @@
 package operation.interfaces;
 
 public interface Validator {
-    boolean isPrimeFactorCountPrime(int citizenId);
+    boolean isPrimeFactorCountPrime(String citizenId);
     String executeCommand(String command);
 }

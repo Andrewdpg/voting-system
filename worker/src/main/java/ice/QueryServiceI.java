@@ -21,7 +21,7 @@ public class QueryServiceI implements QueryService {
     }
 
     @Override
-    public void queryPollingStation(ClientPrx callback, int citizenId, long queryTime, Current current) {
+    public void queryPollingStation(ClientPrx callback, String citizenId, long queryTime, Current current) {
         long start = System.currentTimeMillis();
         threadPool.submit(() ->{
             if (callback == null) {

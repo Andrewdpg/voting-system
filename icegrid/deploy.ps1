@@ -3,9 +3,9 @@ $remote_directory = "andres-parra"
 $password = "swarch"
 
 # Lista de dispositivos
-$worker_hosts = @("xhgrid10")
-$database_hosts = @("xhgrid1")
-$registry = "xhgrid2"
+$worker_hosts = @("xhgrid10", "xhgrid12")
+$database_hosts = @("xhgrid2")
+$registry = "xhgrid3"
 
 # Archivo de entrada y salida
 $application_template = "application.xml"

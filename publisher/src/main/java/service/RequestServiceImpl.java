@@ -17,7 +17,6 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public boolean canHandle(int amount) {
-        // TODO: it must check if the amount of requests can be handled by this single sever the workers
         return false;
     }
 

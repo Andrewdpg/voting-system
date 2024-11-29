@@ -8,7 +8,7 @@ public class QueryProcessorImpl implements QueryProcessor {
 
     Validator executor = new ValidatorImpl();
 
-    public QueryResult processQuery(int citizenId, long start) {
+    public QueryResult processQuery(String citizenId, long start) {
         QueryResult result = new QueryResult();
         result.processTime = System.currentTimeMillis() - start;
         result.citizenId = citizenId;
