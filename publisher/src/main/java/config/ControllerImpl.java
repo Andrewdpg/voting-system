@@ -1,5 +1,17 @@
 package config;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
+import java.util.Queue;
+import java.util.Scanner;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import com.zeroc.Ice.Communicator;
+
+import VotingSystem.ClientPrx;
+import VotingSystem.Message;
+import VotingSystem.QueryResult;
 import VotingSystem.SubscriberPrx;
 import config.interfaces.Controller;
 import manager.IdManagerImpl;
@@ -8,9 +20,6 @@ import manager.interfaces.IdManager;
 import service.RequestServiceImpl;
 import service.interfaces.RequestService;
 
-import java.util.List;
-import java.util.Scanner;
-
 public class ControllerImpl implements Controller {
 
     private static final int MAX_BATCH_SIZE = 100000;
@@ -18,11 +27,14 @@ public class ControllerImpl implements Controller {
     private final ClientManager clientManager;
     private final IdManager idManager;
     private final RequestService requestService;
+    
+    public static final Queue<Message> messageQueue = new LinkedBlockingQueue<>();
+    private static final String FILE_PATH = "out.csv";
 
-    public ControllerImpl(ClientManager clientManager) {
+    public ControllerImpl(ClientManager clientManager, ClientPrx callback, Communicator communicator) {
         this.clientManager = clientManager;
         this.idManager = new IdManagerImpl();
-        this.requestService = new RequestServiceImpl();
+        this.requestService = new RequestServiceImpl(callback, communicator);
     }
 
     @Override
@@ -38,6 +50,7 @@ public class ControllerImpl implements Controller {
                 break;
             case 3:
                 System.out.println("Exporting data");
+                exportToExcel();
                 clientManager.activeClients().forEach(SubscriberPrx::receiveExportSignalAsync);
                 break;
             case 4:
@@ -100,4 +113,52 @@ public class ControllerImpl implements Controller {
         System.out.println("4. Shutdown clients");
         System.out.println("5. Exit");
     }
+
+    public void exportToExcel() {
+        final int BATCH_SIZE = 1000;
+        int totalRequests = 0;
+        long totalResponseTime = 0;
+        long startTime = 0;
+        long endTime = 0;
+        try (FileWriter writer = new FileWriter(FILE_PATH)) {
+            writer.append("CitizenId,Test,IsPrime,DbTime,ProcessTime,QueryTime,EndTime,ResponseTime\n");
+            while (!messageQueue.isEmpty()) {
+                for (int i = 0; i < BATCH_SIZE && !messageQueue.isEmpty(); i++) {
+                    Message message = messageQueue.poll();
+                    if (message instanceof QueryResult queryResult) {
+                        if(startTime == 0) {
+                            startTime = queryResult.queryTime;
+                        }
+                        endTime = queryResult.queryTime;
+                        long responseTime = queryResult.endTime - queryResult.queryTime;
+                        totalRequests++;
+                        totalResponseTime += responseTime;
+                        writer.append(String.valueOf(queryResult.citizenId)).append(",")
+                            .append(queryResult.pollingStation != null ? "true" : "false").append(",")
+                            .append(String.valueOf(queryResult.isPrime)).append(",")
+                            .append(String.valueOf(queryResult.dbTime)).append(",")
+                            .append(String.valueOf(queryResult.processTime)).append(",")
+                            .append(String.valueOf(queryResult.queryTime)).append(",")
+                            .append(String.valueOf(queryResult.endTime)).append(",")
+                            .append(String.valueOf(responseTime)).append('\n');
+                    } else {
+                        writer.append("Unknown message type").append('\n');
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            long totalTime = endTime - startTime;
+            double requestsPerSecond = totalRequests / (totalTime / 1000.0);
+            double averageResponseTime = totalRequests > 0 ? totalResponseTime / (double) totalRequests : 0;
+
+            System.out.println("Exported to " + FILE_PATH);
+            System.out.println("Total Requests: " + totalRequests);
+            System.out.println("Total Time (ms): " + totalTime);
+            System.out.println("Requests per Second: " + requestsPerSecond);
+            System.out.println("Average Response Time (ms): " + averageResponseTime);
+        }
+    }
+
 }
