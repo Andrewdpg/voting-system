@@ -1,6 +1,5 @@
 package config;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -18,6 +17,9 @@ import VotingSystem.QueryServicePrx;
 import VotingSystem.RegistrationServicePrx;
 import VotingSystem.SubscriberPrx;
 
+/**
+ * Unit tests for the ConnectionManager class.
+ */
 public class ConnectionManagerTest {
 
     private ConnectionManager connectionManager;
@@ -25,6 +27,9 @@ public class ConnectionManagerTest {
     private Communicator communicatorMock;
     private RegistrationServicePrx registrationServiceMock;
 
+    /**
+     * Sets up the test environment before each test.
+     */
     @BeforeEach
     public void setUp() {
         queryPrxMock = Mockito.mock(QueryPrx.class);
@@ -37,6 +42,10 @@ public class ConnectionManagerTest {
         connectionManager = new ConnectionManager(queryPrxMock, communicatorMock);
     }
 
+    /**
+     * Tests the registerClient method.
+     * Verifies that the register method of RegistrationServicePrx is called with the correct client proxy.
+     */
     @Test
     public void testRegisterClient() {
         SubscriberPrx clientProxyMock = Mockito.mock(SubscriberPrx.class);
@@ -46,6 +55,10 @@ public class ConnectionManagerTest {
         verify(registrationServiceMock).register(clientProxyMock);
     }
 
+    /**
+     * Tests the getQueryServer method.
+     * Verifies that the correct QueryServicePrx is returned.
+     */
     @Test
     public void testGetQueryServer() {
         QueryServicePrx queryServicePrxMock = Mockito.mock(QueryServicePrx.class);
@@ -57,6 +70,10 @@ public class ConnectionManagerTest {
         assertEquals(queryServicePrxMock, result);
     }
 
+    /**
+     * Tests the constructor of ConnectionManager.
+     * Verifies that a RuntimeException is thrown when the RegistrationServicePrx is null.
+     */
     @Test
     public void testConstructorThrowsExceptionWhenRegistrationServiceIsNull() {
         when(communicatorMock.stringToProxy("RegistrationService@PublisherAdapter"))
@@ -69,6 +86,10 @@ public class ConnectionManagerTest {
         assertEquals("No se pudo conectar al RegistrationService", exception.getMessage());
     }
 
+    /**
+     * Tests the registerClient method.
+     * Verifies that a NullPointerException is thrown when the client proxy is null.
+     */
     @Test
     public void testRegisterClientThrowsExceptionWhenClientProxyIsNull() {
         Exception exception = assertThrows(NullPointerException.class, () -> {
@@ -78,6 +99,10 @@ public class ConnectionManagerTest {
         assertEquals("clientProxy is marked non-null but is null", exception.getMessage());
     }
 
+    /**
+     * Tests the getQueryServer method.
+     * Verifies that null is returned when the QueryService is not found.
+     */
     @Test
     public void testGetQueryServerReturnsNullWhenQueryServiceNotFound() {
         when(queryPrxMock.findObjectByType("::VotingSystem::QueryService")).thenReturn(null);
@@ -87,6 +112,10 @@ public class ConnectionManagerTest {
         assertNull(result);
     }
 
+    /**
+     * Tests the registerClient method with a valid client proxy.
+     * Verifies that the register method of RegistrationServicePrx is called with the correct client proxy.
+     */
     @Test
     public void testRegisterClientWithValidClientProxy() {
         SubscriberPrx clientProxyMock = Mockito.mock(SubscriberPrx.class);
@@ -96,6 +125,10 @@ public class ConnectionManagerTest {
         verify(registrationServiceMock).register(clientProxyMock);
     }
 
+    /**
+     * Tests the getQueryServer method with a valid QueryService.
+     * Verifies that the correct QueryServicePrx is returned.
+     */
     @Test
     public void testGetQueryServerWithValidQueryService() {
         QueryServicePrx queryServicePrxMock = Mockito.mock(QueryServicePrx.class);
