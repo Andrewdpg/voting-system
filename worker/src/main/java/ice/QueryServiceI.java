@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 
 public class QueryServiceI implements QueryService {
 
-    private static final int THREAD_POOL_SIZE = 70;
+    private static final int THREAD_POOL_SIZE = 200;
     private static final ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
     private final QueryProcessor queryProcessor;

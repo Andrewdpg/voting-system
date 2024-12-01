@@ -17,6 +17,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 public class SubscriberI implements VotingSystem.Subscriber {
 
+    private final int threadPoolSize;
     private final OnShutdown onShutdown;
     private final ConnectionManager serviceManager;
     private final ClientPrx callback;
@@ -24,17 +25,19 @@ public class SubscriberI implements VotingSystem.Subscriber {
     public static final Queue<Message> messageQueue = new LinkedBlockingQueue<>();
     private static final String FILE_PATH = "out.csv";
 
-    public SubscriberI(ConnectionManager serviceManager, ClientPrx callback, OnShutdown onShutdown) {
+    public SubscriberI(ConnectionManager serviceManager, ClientPrx callback, OnShutdown onShutdown, int numberOfThreads) {
         this.serviceManager = serviceManager;
         this.callback = callback;
         this.onShutdown = onShutdown;
+
+        this.threadPoolSize = numberOfThreads != -1 ? numberOfThreads : Runtime.getRuntime().availableProcessors() * 8;
     }
 
     @Override
     public void receiveBatch(String[] batch, Current current) {
 
         System.out.println("Batch received - Size: " + batch.length);
-        int numberOfThreads = Math.min(Runtime.getRuntime().availableProcessors() * 8, batch.length);
+        int numberOfThreads = Math.min(threadPoolSize, batch.length);
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(numberOfThreads);
 
         int totalRequests = batch.length;

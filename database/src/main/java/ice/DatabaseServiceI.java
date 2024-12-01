@@ -27,10 +27,9 @@ public class DatabaseServiceI implements DatabaseService {
             if (client == null) {
                 return;
             }
-            long init = System.currentTimeMillis();
             partialResult.pollingStation = persistence.getPollingStation(partialResult.citizenId);
             long time = System.currentTimeMillis();
-            partialResult.dbTime = time - init;
+            partialResult.dbTime = time - start;
             client.receiveNotification(partialResult);
             }
         );

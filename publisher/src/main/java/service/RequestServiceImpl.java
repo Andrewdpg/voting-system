@@ -63,6 +63,16 @@ public class RequestServiceImpl implements RequestService {
         return amount <= 150000;
     }
 
+    @Override
+    public void sendSingleQuery(String citizenId) {
+        QueryServicePrx service = getQueryServer();
+        if (service == null) {
+            System.out.println("Service not available");
+            return;
+        }
+        service.queryPollingStation(callback, citizenId, System.currentTimeMillis());
+    }
+
     public QueryServicePrx getQueryServer () {
         return QueryServicePrx.checkedCast(query.findObjectByType("::VotingSystem::QueryService"));
     }

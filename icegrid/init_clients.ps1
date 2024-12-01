@@ -3,7 +3,8 @@ $password = "swarch"
 
 # Lista de dispositivos
 $client_hosts = @("xhgrid11", "xhgrid13")
-$registry = "xhgrid3"
+$registry = "xhgrid6"
+$thread_count = "10"
 
 # Archivo de entrada y salida
 $client_jar = "../client/build/libs/client.jar"
@@ -16,5 +17,5 @@ foreach ($client_host in $client_hosts) {
     & plink -batch -pw $password -hostkey $hostkey "swarch@$client_host" "rm -rf $remote_directory; mkdir -p $remote_directory"
     & pscp -batch -pw $password -hostkey $hostkey $client_jar "swarch@${client_host}:$remote_directory/"
     Write-Output "Ejecutando cliente en $client_host"
-    & plink -batch -pw $password -hostkey $hostkey "swarch@$client_host" "killall java; cd $remote_directory; nohup java -jar client.jar ${registry} > client.log 2>&1 &"
+    & plink -batch -pw $password -hostkey $hostkey "swarch@$client_host" "killall java; cd $remote_directory; nohup java -jar client.jar ${registry} ${thread_count} > client.log 2>&1 &"
 }

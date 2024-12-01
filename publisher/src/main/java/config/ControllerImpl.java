@@ -57,6 +57,11 @@ public class ControllerImpl implements Controller {
                 clientManager.activeClients().forEach(SubscriberPrx::shutdownAsync);
                 break;
             case 5:
+                System.out.println("Enter citizen id: ");
+                String citizenId = new Scanner(System.in).nextLine();
+                requestService.sendSingleQuery(citizenId);
+                break;
+            case 6:
                 return false;
             default:
                 System.out.println("Invalid option");
@@ -111,7 +116,8 @@ public class ControllerImpl implements Controller {
         System.out.println("2. Send batch");
         System.out.println("3. Export data");
         System.out.println("4. Shutdown clients");
-        System.out.println("5. Exit");
+        System.out.println("5. Query a single citizen");
+        System.out.println("6. Exit");
     }
 
     public void exportToExcel() {

@@ -48,7 +48,7 @@ public class SubscriberITest {
 
         when(connectionManagerMock.getQueryServer()).thenReturn(queryServicePrxMock);
 
-        subscriber = new SubscriberI(connectionManagerMock, clientPrxMock, onShutdownMock);
+        subscriber = new SubscriberI(connectionManagerMock, clientPrxMock, onShutdownMock, -1);
     }
 
     /**

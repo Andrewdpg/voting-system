@@ -20,6 +20,11 @@ public class Client {
         }
 
         String host = args[0];
+        int threadPoolSize = -1;
+
+        if (args.length > 1) {
+            threadPoolSize = Integer.parseInt(args[1]);
+        }
 
         InitializationData initData = new InitializationData();
         initData.properties = Util.createProperties();
@@ -46,7 +51,7 @@ public class Client {
             CallbackHandler callbackHandler = new CallbackHandler();
             ClientPrx callback = ClientPrx.checkedCast(adapter.addWithUUID(callbackHandler));
 
-            SubscriberI subscriber = new SubscriberI(serviceManager, callback, Client::setRunning);
+            SubscriberI subscriber = new SubscriberI(serviceManager, callback, Client::setRunning, threadPoolSize);
             SubscriberPrx subscriberProxy = SubscriberPrx.checkedCast(adapter.addWithUUID(subscriber));
 
             adapter.activate();
