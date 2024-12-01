@@ -1,11 +1,13 @@
 package ice;
 
-import VotingSystem.*;
-import com.zeroc.Ice.Current;
-import manager.interfaces.ClientManager;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import com.zeroc.Ice.Current;
+
+import VotingSystem.RegistrationService;
+import VotingSystem.SubscriberPrx;
+import manager.interfaces.ClientManager;
 
 public class RegistrationServiceI implements RegistrationService {
 
@@ -20,8 +22,11 @@ public class RegistrationServiceI implements RegistrationService {
 
     @Override
     public void register(SubscriberPrx clientProxy, Current current) {
+        if (clientProxy == null) {
+            System.out.println("Client proxy is null, registration aborted.");
+            return;
+        }
         System.out.println("Client registered: " + clientProxy.toString());
         threadPool.submit(() -> clientManager.registerClient(clientProxy));
     }
-
 }
