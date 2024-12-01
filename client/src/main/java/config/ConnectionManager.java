@@ -1,10 +1,11 @@
 package config;
 
+import com.zeroc.Ice.Communicator;
+import com.zeroc.IceGrid.QueryPrx;
+
 import VotingSystem.QueryServicePrx;
 import VotingSystem.RegistrationServicePrx;
 import VotingSystem.SubscriberPrx;
-import com.zeroc.Ice.Communicator;
-import com.zeroc.IceGrid.QueryPrx;
 
 public class ConnectionManager {
 
@@ -21,6 +22,9 @@ public class ConnectionManager {
     }
 
     public void registerClient(SubscriberPrx clientProxy) {
+        if (clientProxy == null) {
+            throw new NullPointerException("clientProxy is marked non-null but is null");
+        }
         registrationService.register(clientProxy);
     }
 
