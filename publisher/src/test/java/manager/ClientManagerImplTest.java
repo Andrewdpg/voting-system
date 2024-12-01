@@ -14,7 +14,7 @@ import VotingSystem.SubscriberPrx;
 /**
  * Unit tests for the ClientManagerImpl class.
  */
-class ClientManagerITest {
+class ClientManagerImplTest {
 
     private ClientManagerImpl clientManager;
     private SubscriberPrx subscriberPrxMock;
