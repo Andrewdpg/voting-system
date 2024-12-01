@@ -1,10 +1,11 @@
 package manager;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import VotingSystem.SubscriberPrx;
 import manager.interfaces.ClientManager;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ClientManagerImpl implements ClientManager {
 
@@ -21,11 +22,13 @@ public class ClientManagerImpl implements ClientManager {
 
     @Override
     public List<SubscriberPrx> activeClients() {
-        for (SubscriberPrx client : clients) {
+        Iterator<SubscriberPrx> iterator = clients.iterator();
+        while (iterator.hasNext()) {
+            SubscriberPrx client = iterator.next();
             try {
                 client.ice_ping();
             } catch (Exception e) {
-                clients.remove(client);
+                iterator.remove();
             }
         }
         return clients;

@@ -12,6 +12,9 @@ import com.zeroc.Ice.Current;
 import VotingSystem.SubscriberPrx;
 import manager.interfaces.ClientManager;
 
+/**
+ * Unit tests for the RegistrationServiceI class.
+ */
 public class RegistrationServiceITest {
 
     private RegistrationServiceI registrationService;
@@ -19,6 +22,9 @@ public class RegistrationServiceITest {
     private SubscriberPrx subscriberPrxMock;
     private Current currentMock;
 
+    /**
+     * Sets up the test environment before each test.
+     */
     @BeforeEach
     public void setUp() {
         clientManagerMock = Mockito.mock(ClientManager.class);
@@ -28,6 +34,10 @@ public class RegistrationServiceITest {
         registrationService = new RegistrationServiceI(clientManagerMock);
     }
 
+    /**
+     * Tests the register method.
+     * Verifies that the registerClient method of ClientManager is called with the correct client proxy.
+     */
     @Test
     public void testRegister() throws InterruptedException {
         registrationService.register(subscriberPrxMock, currentMock);
@@ -38,6 +48,10 @@ public class RegistrationServiceITest {
         verify(clientManagerMock).registerClient(subscriberPrxMock);
     }
 
+    /**
+     * Tests the register method with a null client proxy.
+     * Verifies that the registerClient method of ClientManager is never called.
+     */
     @Test
     public void testRegisterWithNullClientProxy() throws InterruptedException {
         registrationService.register(null, currentMock);
