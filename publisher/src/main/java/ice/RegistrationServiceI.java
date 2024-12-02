@@ -26,7 +26,7 @@ public class RegistrationServiceI implements RegistrationService {
             System.out.println("Client proxy is null, registration aborted.");
             return;
         }
-        System.out.println("Client registered: " + clientProxy.toString());
+        System.out.println("Client registered: " + clientProxy);
         threadPool.submit(() -> clientManager.registerClient(clientProxy));
     }
 }

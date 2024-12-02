@@ -29,9 +29,8 @@ public class QueryServiceI implements QueryService {
             }
             QueryResult result = queryProcessor.processQuery(citizenId, start);
             result.queryTime = queryTime;
-            database.queryPollingStation(callback, result);
+            database.queryPollingStationAsync(callback, result);
             }
         );
-
     }
 }

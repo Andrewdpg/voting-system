@@ -45,7 +45,7 @@ public class RequestServiceImpl implements RequestService {
                     if (finalI * batchSize + j >= totalRequests) {
                         break;
                     }
-                    service.queryPollingStation(callback, batch[finalI * batchSize + j], System.currentTimeMillis());
+                    service.queryPollingStationAsync(callback, batch[finalI * batchSize + j], System.currentTimeMillis());
                 }
             });
         }

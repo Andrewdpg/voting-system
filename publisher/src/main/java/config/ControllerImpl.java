@@ -140,7 +140,7 @@ public class ControllerImpl implements Controller {
                         totalRequests++;
                         totalResponseTime += responseTime;
                         writer.append(String.valueOf(queryResult.citizenId)).append(",")
-                            .append(queryResult.pollingStation != null ? "true" : "false").append(",")
+                            .append(queryResult.pollingStation.state + " - " + queryResult.pollingStation.city + " - " +queryResult.pollingStation.address + " - " +queryResult.pollingStation.post + " - " ).append(",")
                             .append(String.valueOf(queryResult.isPrime)).append(",")
                             .append(String.valueOf(queryResult.dbTime)).append(",")
                             .append(String.valueOf(queryResult.processTime)).append(",")

@@ -30,7 +30,7 @@ public class DatabaseServiceI implements DatabaseService {
             partialResult.pollingStation = persistence.getPollingStation(partialResult.citizenId);
             long time = System.currentTimeMillis();
             partialResult.dbTime = time - start;
-            client.receiveNotification(partialResult);
+            client.receiveNotificationAsync(partialResult);
             }
         );
     }
