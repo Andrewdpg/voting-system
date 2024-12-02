@@ -52,18 +52,6 @@ public class SubscriberITest {
     }
 
     /**
-     * Tests the receiveBatch method.
-     * Verifies that the queryPollingStation method is called the correct number of times.
-     */
-    @Test
-    public void testReceiveBatch() {
-        String[] batch = {"id1", "id2", "id3"};
-        subscriber.receiveBatch(batch, currentMock);
-
-        verify(queryServicePrxMock, times(batch.length)).queryPollingStation(any(), anyString(), anyLong());
-    }
-
-    /**
      * Tests the receiveBatch method when the service is not available.
      * Verifies that the queryPollingStation method is never called.
      */

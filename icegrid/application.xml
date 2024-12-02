@@ -22,9 +22,11 @@
         <server-template id="Database">
             <parameter name="index"/>
             <parameter name="host"/>
+            <parameter name="database-host"/>
             <server id="Database-${host}-${index}" exe="java" activation="always">
                 <option>-jar</option>
                 <option>database.jar</option>
+                <option>${database-host}</option>
                 <adapter name="DatabaseAdapter" endpoints="tcp -h *">
                     <object identity="database-${host}-${index}" type="::VotingSystem::DatabaseService" property="IdentityDatabase"/>
                 </adapter>

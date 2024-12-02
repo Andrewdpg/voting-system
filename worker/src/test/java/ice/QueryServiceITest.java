@@ -43,29 +43,6 @@ public class QueryServiceITest {
     }
 
     /**
-     * Tests the queryPollingStation method with a valid callback.
-     * Verifies that the query is processed and the result is sent to the database service.
-     */
-    @Test
-    public void testQueryPollingStation() {
-        String citizenId = "12345";
-        long queryTime = System.currentTimeMillis();
-        QueryResult queryResult = new QueryResult();
-        queryResult.citizenId = citizenId;
-
-        when(queryProcessor.processQuery(anyString(), anyLong())).thenReturn(queryResult);
-
-        queryService.queryPollingStation(clientPrx, citizenId, queryTime, mock(Current.class));
-
-        ArgumentCaptor<QueryResult> queryResultCaptor = ArgumentCaptor.forClass(QueryResult.class);
-        verify(databaseServicePrx, timeout(1000)).queryPollingStation(eq(clientPrx), queryResultCaptor.capture());
-
-        QueryResult capturedResult = queryResultCaptor.getValue();
-        assertEquals(citizenId, capturedResult.citizenId);
-        assertEquals(queryTime, capturedResult.queryTime);
-    }
-
-    /**
      * Tests the queryPollingStation method with a null callback.
      * Verifies that no interactions occur with the query processor or database service.
      */

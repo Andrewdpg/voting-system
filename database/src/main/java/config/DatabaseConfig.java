@@ -12,9 +12,9 @@ import java.util.Properties;
 
 public class DatabaseConfig {
 
-    private static final HikariDataSource dataSource;
+    private static HikariDataSource dataSource;
 
-    static {
+    public static void initialize(String databaseHost) {
         Properties properties = new Properties();
         try (InputStream input = DatabaseConfig.class.getClassLoader().getResourceAsStream("database.properties")) {
             if (input == null) {
@@ -26,11 +26,11 @@ public class DatabaseConfig {
         }
 
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(properties.getProperty("jdbcUrl"));
+        config.setJdbcUrl("jdbc:postgresql://" + databaseHost + "/votaciones");
         config.setUsername(properties.getProperty("username"));
         config.setPassword(properties.getProperty("password"));
 
-        config.setMaximumPoolSize(70);
+        config.setMaximumPoolSize(35);
         config.setMinimumIdle(20);
         config.setConnectionTimeout(15000);
         config.setIdleTimeout(300000);

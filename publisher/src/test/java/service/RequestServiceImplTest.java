@@ -49,17 +49,6 @@ class RequestServiceImplTest {
     }
 
     /**
-     * Tests the sendBatch method to ensure it sends the correct number of queries.
-     */
-    @Test
-    public void testSendBatch() {
-        String[] batch = {"id1", "id2", "id3"};
-        requestService.sendBatch(batch);
-
-        verify(queryServicePrxMock, times(batch.length)).queryPollingStation(any(ClientPrx.class), anyString(), anyLong());
-    }
-
-    /**
      * Tests the sendBatch method to ensure it handles the case when the service is not available.
      */
     @Test

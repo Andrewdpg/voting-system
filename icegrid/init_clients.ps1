@@ -2,8 +2,8 @@ $remote_directory = "andres-parra"
 $password = "swarch"
 
 # Lista de dispositivos
-$client_hosts = @("xhgrid11", "xhgrid13")
-$registry = "xhgrid6"
+$client_hosts = @("xhgrid19", "xhgrid20")
+$registry = "xhgrid8"
 $thread_count = "10"
 
 # Archivo de entrada y salida

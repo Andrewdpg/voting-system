@@ -3,9 +3,9 @@ $remote_directory = "andres-parra"
 $password = "swarch"
 
 # Lista de dispositivos
-$worker_hosts = @("xhgrid10")
-$database_hosts = @("xhgrid3")
-$registry = "xhgrid6"
+$worker_hosts = @("xhgrid9", "xhgrid10", "xhgrid11", "xhgrid13")
+$database_hosts = @("xhgrid3", "xhgrid4")
+$registry = "xhgrid8"
 
 # Archivo de entrada y salida
 $application_template = "application.xml"
@@ -32,7 +32,8 @@ $nodes = ""
 foreach ($db_host in $database_hosts) {
     $nodes += @"
         <node name="$unique_id$db_host">
-            <server-instance template="Database" index="1" host="$unique_id$db_host"/>
+            <server-instance template="Database" index="1" host="$unique_id$db_host" database-host="xhgrid2"/>
+            <server-instance template="Database" index="2" host="$unique_id$db_host" database-host="xhgrid12"/>
         </node>
 
 "@

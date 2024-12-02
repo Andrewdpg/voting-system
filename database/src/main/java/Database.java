@@ -5,7 +5,7 @@ import com.zeroc.Ice.ObjectAdapter;
 import config.ServiceManagerImpl;
 import config.interfaces.ServiceManager;
 
-import static config.DatabaseConfig.getDataSource;
+import static config.DatabaseConfig.initialize;
 
 public class Database {
     public static void main(String[] args) {
@@ -18,12 +18,15 @@ public class Database {
                 communicator.shutdown();
             }));
 
-            if (!extraArgs.isEmpty()) {
-                System.err.println("too many arguments");
+            if (extraArgs.size() != 1) {
+                System.err.println("Usage: java -jar database.jar <database-host>");
                 status = 1;
-            }else{
-                // Initialize the database
-                getDataSource();
+            } else {
+                String databaseHost = extraArgs.get(0);
+                System.out.println("Database host: " + databaseHost);
+
+                // Initialize the database with the provided host
+                initialize(databaseHost);
 
                 ObjectAdapter adapter = communicator.createObjectAdapter("DatabaseAdapter");
                 Properties properties = communicator.getProperties();
