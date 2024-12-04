@@ -1,0 +1,46 @@
+<icegrid>
+    <application name="VotingSystem">
+        <server-template id="Worker">
+            <parameter name="index"/>
+            <parameter name="host"/>
+            <server id="Worker-${host}-${index}" exe="java" activation="always">
+                <option>-jar</option>
+                <option>worker.jar</option>
+                <adapter name="WorkerAdapter" endpoints="tcp -h *">
+                    <object identity="query-${host}-${index}" type="::VotingSystem::QueryService" property="IdentityQuery"/>
+                </adapter>
+                <property name="Ice.ThreadPool.Server.Size" value="50"/>
+                <property name="Ice.ThreadPool.Server.SizeMax" value="100"/>
+                <property name="Ice.ThreadPool.Client.Size" value="50"/>
+                <property name="Ice.ThreadPool.Client.SizeMax" value="100"/>
+                <property name="Ice.ThreadPool.Server.StackSize" value="131072"/>
+                <property name="Ice.ThreadPool.Server.Serialize" value="0"/>
+                <property name="Ice.Default.InvocationTimeout" value="1000"/>
+            </server>
+        </server-template>
+
+        <server-template id="Database">
+            <parameter name="index"/>
+            <parameter name="host"/>
+            <parameter name="database-host"/>
+            <server id="Database-${host}-${index}" exe="java" activation="always">
+                <option>-jar</option>
+                <option>database.jar</option>
+                <option>${database-host}</option>
+                <adapter name="DatabaseAdapter" endpoints="tcp -h *">
+                    <object identity="database-${host}-${index}" type="::VotingSystem::DatabaseService" property="IdentityDatabase"/>
+                </adapter>
+                <property name="Ice.ThreadPool.Server.Size" value="50"/>
+                <property name="Ice.ThreadPool.Server.SizeMax" value="100"/>
+                <property name="Ice.ThreadPool.Client.Size" value="50"/>
+                <property name="Ice.ThreadPool.Client.SizeMax" value="100"/>
+                <property name="Ice.ThreadPool.Server.StackSize" value="131072"/>
+                <property name="Ice.ThreadPool.Server.Serialize" value="0"/>
+                <property name="Ice.Default.InvocationTimeout" value="1000"/>
+            </server>
+        </server-template>
+
+{--hosts--}
+
+    </application>
+</icegrid>

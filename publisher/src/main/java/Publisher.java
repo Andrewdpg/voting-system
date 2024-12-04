@@ -1,34 +1,36 @@
-import VotingSystem.SubscriberPrx;
 import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.ObjectAdapter;
-import VotingSystem.ClientPrx;
 import com.zeroc.Ice.Util;
-import com.zeroc.IceGrid.QueryPrx;
-import config.ConnectionManager;
+
+import VotingSystem.ClientPrx;
+import config.ControllerImpl;
+import config.ServiceManagerImpl;
+import config.interfaces.Controller;
+import config.interfaces.ServiceManager;
 import ice.CallbackHandler;
-import ice.SubscriberI;
+import manager.ClientManagerImpl;
+import manager.interfaces.ClientManager;
 
-public class Client {
+public class Publisher {
 
-    private static Communicator communicator;
+    private static volatile boolean running = true;
 
     public static void main(String[] args) {
         if (args.length < 1) {
-            System.err.println("Usage: java -jar client.jar <host>");
+            System.err.println("Usage: java -jar publisher.jar <host>");
             System.exit(1);
         }
 
         String host = args[0];
-        int threadPoolSize = -1;
 
-        if (args.length > 1) {
-            threadPoolSize = Integer.parseInt(args[1]);
-        }
-
+        // Configuración de propiedades para Ice
         InitializationData initData = new InitializationData();
         initData.properties = Util.createProperties();
         initData.properties.setProperty("Ice.Default.Locator", "IceGrid/Locator:tcp -h " + host + " -p 4061");
+        initData.properties.setProperty("Ice.ProgramName", "Publisher");
+        initData.properties.setProperty("PublisherAdapter.Endpoints", "tcp -h *");
+        initData.properties.setProperty("PublisherAdapter.AdapterId", "PublisherAdapter");
         initData.properties.setProperty("CallbackAdapter.Endpoints", "tcp -p 0");
         initData.properties.setProperty("Ice.ThreadPool.Server.Size", "20");
         initData.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "50");
@@ -37,36 +39,30 @@ public class Client {
         initData.properties.setProperty("Ice.ThreadPool.Server.StackSize", "131072");
         initData.properties.setProperty("Ice.ThreadPool.Server.Serialize", "0");
 
-        try {
-            communicator = com.zeroc.Ice.Util.initialize(initData);
+        try (Communicator communicator = com.zeroc.Ice.Util.initialize(initData)) {
+            ClientManager clientManager = new ClientManagerImpl();
             ObjectAdapter adapter = communicator.createObjectAdapter("CallbackAdapter");
 
-            QueryPrx query = QueryPrx.checkedCast(communicator.stringToProxy("IceGrid/Query"));
-            if (query == null) {
-                throw new Error("Invalid proxy");
-            }
-
-            ConnectionManager serviceManager = new ConnectionManager(query, communicator);
+            ServiceManager serviceManager = new ServiceManagerImpl(clientManager);
+            serviceManager.initializeServices(communicator.getProperties(), communicator.createObjectAdapter("PublisherAdapter"));
 
             CallbackHandler callbackHandler = new CallbackHandler();
             ClientPrx callback = ClientPrx.checkedCast(adapter.addWithUUID(callbackHandler));
 
-            SubscriberI subscriber = new SubscriberI(serviceManager, callback, Client::setRunning, threadPoolSize);
-            SubscriberPrx subscriberProxy = SubscriberPrx.checkedCast(adapter.addWithUUID(subscriber));
-
             adapter.activate();
 
-            serviceManager.registerClient(subscriberProxy);
+            Controller controller = new ControllerImpl(clientManager, callback, communicator);
 
-            communicator.waitForShutdown();
+            System.out.println("Publisher registered dynamically.");
+
+            while (running) {
+                running =  controller.run();
+            }
+
+            communicator.shutdown();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static void setRunning(boolean running) {
-        if (!running) {
-            communicator.shutdown();
-        }
-    }
 }

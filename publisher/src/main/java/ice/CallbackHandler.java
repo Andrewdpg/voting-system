@@ -1,11 +1,13 @@
 package ice;
 
-import VotingSystem.Message;
-import VotingSystem.QueryResult;
-import com.zeroc.Ice.Current;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import com.zeroc.Ice.Current;
+
+import VotingSystem.Message;
+import VotingSystem.QueryResult;
+import config.ControllerImpl;
 
 public class CallbackHandler implements VotingSystem.Client {
 
@@ -17,9 +19,9 @@ public class CallbackHandler implements VotingSystem.Client {
         threadPool.submit(() -> {
             if (message instanceof QueryResult queryResult) {
                 queryResult.endTime = endtime;
-                SubscriberI.messageQueue.add(queryResult);
+                ControllerImpl.messageQueue.add(queryResult);
             } else {
-                SubscriberI.messageQueue.add(message);
+                ControllerImpl.messageQueue.add(message);
             }
         });
     }

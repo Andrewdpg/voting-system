@@ -1,33 +1,34 @@
 package config;
 
-import VotingSystem.ClientInfo;
-import VotingSystem.ClientPrx;
+import com.zeroc.Ice.Communicator;
+import com.zeroc.IceGrid.QueryPrx;
+
 import VotingSystem.QueryServicePrx;
 import VotingSystem.RegistrationServicePrx;
-import com.zeroc.Ice.Communicator;
+import VotingSystem.SubscriberPrx;
 
 public class ConnectionManager {
 
-    private final RegistrationServicePrx registrationServer;
-    private final QueryServicePrx queryServer;
+    private final RegistrationServicePrx registrationService;
+    private final QueryPrx queryPrx;
 
-    public ConnectionManager(Communicator communicator) {
-        this.registrationServer = RegistrationServicePrx.checkedCast(
-            communicator.propertyToProxy("RegistrationService.Proxy"));
-        this.queryServer = QueryServicePrx.checkedCast(
-            communicator.propertyToProxy("QueryService.Proxy"));
+    public ConnectionManager(QueryPrx queryPrx, Communicator communicator) {
+        this.queryPrx = queryPrx;
+        this.registrationService = RegistrationServicePrx.checkedCast(communicator.stringToProxy("RegistrationService@PublisherAdapter"));
 
-        if (registrationServer == null || queryServer == null) {
-            throw new Error("Invalid proxy");
+        if (registrationService == null) {
+            throw new RuntimeException("No se pudo conectar al RegistrationService");
         }
     }
 
-    public void registerClient(ClientPrx callback) {
-        registrationServer.registerClient(callback);
+    public void registerClient(SubscriberPrx clientProxy) {
+        if (clientProxy == null) {
+            throw new NullPointerException("clientProxy is marked non-null but is null");
+        }
+        registrationService.register(clientProxy);
     }
 
-    public void queryPollingStation(ClientInfo info, int stationId) {
-        long time = System.currentTimeMillis();
-        queryServer.queryPollingStation(info, stationId, time);
+    public QueryServicePrx getQueryServer() {
+        return QueryServicePrx.checkedCast(queryPrx.findObjectByType("::VotingSystem::QueryService"));
     }
 }

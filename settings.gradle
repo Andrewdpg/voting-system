@@ -9,4 +9,6 @@
 
 rootProject.name = 'voting'
 include 'client'
-include 'server'
+include 'database'
+include 'worker'
+include 'publisher'

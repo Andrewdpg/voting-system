@@ -1,4 +1,5 @@
 module VotingSystem {
+    sequence<string> Batch;
 
     class PollingStation {
         string post;
@@ -13,18 +14,13 @@ module VotingSystem {
 
     // Class representing the result of a voting place query
     class QueryResult extends Message {
-        int citizenId;
+        string citizenId;
         PollingStation pollingStation;
         int isPrime;
         long processTime;
         long dbTime;
         long queryTime;
         long endTime;
-    };
-
-    // Class containing client information
-    class ClientInfo extends Message {
-        string clientId;
     };
 
     // Class representing an error message
@@ -36,21 +32,25 @@ module VotingSystem {
     interface Client {
         // Callback method to receive messages (Results or Other types) from the server
         void receiveNotification(Message message);
+    };
+
+    interface Subscriber {
+        void receiveBatch(Batch batch);
         void receiveExportSignal();
+        void shutdown();
+    };
+
+    interface RegistrationService {
+        void register(Subscriber* client);
     };
 
     // Interface allowing clients to perform queries on the server
     interface QueryService {
         // Method to query a polling station based on citizen ID
-        void queryPollingStation(ClientInfo info, int citizenId, long queryTime);
+        void queryPollingStation(Client* client, string citizenId, long queryTime);
     };
 
-    // Interface for client registration and removal on the server
-    interface RegistrationService {
-        // Method to register a client as an observer
-        void registerClient(Client* clientProxy);
-
-        // Method to remove a client from the observer registry
-        void unregisterClient(ClientInfo info);
+    interface DatabaseService {
+       void queryPollingStation(Client* client, QueryResult partialResult);
     };
 };
